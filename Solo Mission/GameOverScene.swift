@@ -59,7 +59,7 @@ class GameOverScene: SKScene {
         highScoreLabel.position = CGPoint(x: self.size.width/2, y: self.size.height*0.45)
         self.addChild(highScoreLabel)
         
-        restartLabel.text = "Restart"
+        restartLabel.text = "RESTART"
         restartLabel.fontSize = 90
         restartLabel.fontColor = SKColor.white
         restartLabel.zPosition = 1

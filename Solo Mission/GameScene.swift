@@ -24,6 +24,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let player = SKSpriteNode(imageNamed: "playerShip")
     
+    let tapToStartLabel = SKLabelNode(fontNamed: "theboldfont")
+    
     // 0 -> before a Game, 1 -> During a Game, 2 -> After the Game
     enum gameState {
         case PreGame
@@ -31,7 +33,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         case afterGame
     }
     
-    var currentGameState = gameState.inGame
+    var currentGameState = gameState.PreGame
     
     
 //    let bullet = SKSpriteNode(imageNamed: "bullet")
@@ -84,8 +86,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(background)
         
         player.setScale(1)
-        // the player started 20% from the up the screen
-        player.position = CGPoint(x: self.size.width/2, y: self.size.height * 0.20)
+        // the player started 20% from the up the screen, y: is to be in the button of the screen
+        player.position = CGPoint(x: self.size.width/2, y: 0 - player.size.height)
         player.zPosition = 2
         player.physicsBody = SKPhysicsBody(rectangleOf: player.size)
         player.physicsBody!.affectedByGravity = false
@@ -99,7 +101,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.fontSize = 70
         scoreLabel.fontColor = SKColor.white
         scoreLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
-        scoreLabel.position = CGPoint(x: self.size.width*0.15, y: self.size.height*0.9)
+        scoreLabel.position = CGPoint(x: self.size.width*0.15, y: self.size.height + scoreLabel.frame.height)
         scoreLabel.zPosition = 100 // label will be safely always be on top of everything
         self.addChild(scoreLabel)
         
@@ -107,15 +109,47 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         liveLabel.fontSize = 70
         liveLabel.fontColor = SKColor.white
         liveLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.right
-        liveLabel.position = CGPoint(x: self.size.width*0.85, y: self.size.height*0.9)
+        liveLabel.position = CGPoint(x: self.size.width*0.85, y: self.size.height + liveLabel.frame.height)
         liveLabel.zPosition = 100
         self.addChild(liveLabel)
         
-        startNewLevel()
+        // this is an Action to only affects the
+        // y coordinate so to make the label just moving down
+        let moveOnScreen = SKAction.moveTo(y: self.size.height*0.9, duration: 0.3)
+        scoreLabel.run(moveOnScreen)
+        liveLabel.run(moveOnScreen)
+        
+        tapToStartLabel.text = "Tap To Begin"
+        tapToStartLabel.fontSize = 100
+        tapToStartLabel.fontColor = SKColor.white
+        tapToStartLabel.zPosition = 1
+        tapToStartLabel.position = CGPoint(x: self.size.width/2, y: self.size.height/2)
+        tapToStartLabel.alpha = 0 // 1 is normal, 0 is completely seepho , 0.5 is half see "hidden"
+        self.addChild(tapToStartLabel)
+        
+        
+        let fadeInAction = SKAction.fadeIn(withDuration: 0.3)
+        tapToStartLabel.run(fadeInAction)
+//        startNewLevel()
 
     }
     
-    
+    func startGame(){
+        // the game status will change from pre to in
+        currentGameState = gameState.inGame
+        // the label will go after tapping on the screen
+        let fadeOutAction = SKAction.fadeOut(withDuration: 1)
+        let deleteAction = SKAction.removeFromParent()
+        let deleteSequence = SKAction.sequence([fadeOutAction, deleteAction])
+        tapToStartLabel.run(deleteSequence)
+        
+        // Ship should move on the bar this means only y axis is affected
+        let moveShipOntoScreenAction = SKAction.moveTo(y: self.size.height*0.2, duration: 0.5)
+        let startLevel = SKAction.run(startNewLevel)
+        let startGameSequence = SKAction.sequence([moveShipOntoScreenAction, startLevel])
+        player.run(startGameSequence)
+        
+    }
 
 
     func startNewLevel(){
@@ -358,7 +392,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
-        if currentGameState == gameState.inGame {
+        if currentGameState == gameState.PreGame {
+            startGame()
+        }
+        
+        else if currentGameState == gameState.inGame {
             fireBullet()
         }
 //        spwanEnemy()
