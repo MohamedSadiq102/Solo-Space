@@ -79,11 +79,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.physicsWorld.contactDelegate = self
         
+        for i in 0...1 {
+        
         let background = SKSpriteNode(imageNamed: "background")
         background.size = self.size
-        background.position = CGPoint(x: self.size.width/2, y: self.size.height/2)
+        background.anchorPoint = CGPoint(x: 0.5, y: 0)
+        // when the i = 0, the foto will be buttom of the screen, when 1 at the up of the screen
+        background.position = CGPoint(x: self.size.width/2, y: self.size.height*CGFloat(i))
         background.zPosition = 0
+        background.name = "Background"
         self.addChild(background)
+            
+        }
         
         player.setScale(1)
         // the player started 20% from the up the screen, y: is to be in the button of the screen
@@ -132,6 +139,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         tapToStartLabel.run(fadeInAction)
 //        startNewLevel()
 
+    }
+    
+    // to store the time of the last frame,
+    // to compare that with how much time is passed
+    var lastUpdateTime: TimeInterval = 0
+    var deltaFrameTime: TimeInterval = 0
+    // the amount of the movement per second
+    var amountToMovePerSecond: CGFloat = 600.0
+    
+    
+    // will start at everyGame loop
+    override func update(_ currentTime: TimeInterval) {
+        
+        if lastUpdateTime == 0 {
+            lastUpdateTime = currentTime
+        }else{
+            deltaFrameTime = currentTime - lastUpdateTime
+            lastUpdateTime = currentTime
+        }
+        // store how much we have to move each of our backgrounds
+        let amountToMoveBackground = amountToMovePerSecond * CGFloat(deltaFrameTime)
+        
+        self.enumerateChildNodes(withName: "Background"){
+            background, stop in
+            if self.currentGameState == gameState.inGame{
+            // how much we have to move our Background by
+            background.position.y -= amountToMoveBackground
+            }
+            
+            // background.position.y the ancher
+            // if the first backgrounf less than second then move it
+            if background.position.y < -self.size.height{
+                background.position.y += self.size.height*2
+            }
+        }
     }
     
     func startGame(){
