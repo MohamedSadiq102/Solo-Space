@@ -16,7 +16,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let scoreLabel = SKLabelNode(fontNamed: "theboldfont")
     
-    var liveNumber = 3
+    var liveNumber = 5
     let liveLabel = SKLabelNode(fontNamed: "theboldfont")
     
     
@@ -112,7 +112,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.zPosition = 100 // label will be safely always be on top of everything
         self.addChild(scoreLabel)
         
-        liveLabel.text = "Lives: 3"
+        liveLabel.text = "Lives: 5"
         liveLabel.fontSize = 70
         liveLabel.fontColor = SKColor.white
         liveLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.right
